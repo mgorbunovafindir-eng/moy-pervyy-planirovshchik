@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Мой планировщик</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">✓</span><div><h1>Мой планировщик</h1><p>Место для ваших планов</p></div></div>
+      <div class="header-tools"><span id="save-status" class="save-status" role="status">Загрузка…</span><details id="backup-menu" class="backup-menu"><summary class="button secondary">Резервная копия</summary><div class="backup-options"><button id="export-backup" class="text-button" type="button">Скачать копию JSON</button><button id="import-backup" class="text-button" type="button">Восстановить из файла</button><p class="muted">Копия включает задачи, историю, повторы и настройки. Восстановление заменит все данные.</p></div></details></div>
+    </header>
+    <section id="storage-alert" class="storage-alert" aria-live="assertive" hidden><p id="storage-message"></p><div class="storage-actions"><button id="emergency-export" class="button secondary" type="button">Скачать мою копию</button><button id="download-raw" class="button secondary" type="button" hidden>Скачать исходные данные</button><button id="recovery-import" class="button secondary" type="button">Загрузить резервную копию</button><button id="retry-save" class="button secondary" type="button">Повторить сохранение</button><button id="load-external" class="button secondary" type="button" hidden>Загрузить данные другой вкладки</button></div></section>
+    <p id="backup-error" class="backup-error" role="alert" hidden></p>
+    <input id="backup-file" type="file" accept=".json,application/json" hidden>
+    <main class="workspace">
+      <section class="day-column" aria-labelledby="day-title">
+        <header class="day-heading"><div><p id="day-context" class="eyebrow"></p><h2 id="day-title"></h2></div><nav class="day-navigation" aria-label="Выбор дня"><button id="previous-day" class="icon-button" aria-label="Предыдущий день" type="button">‹</button><button id="today-button" class="button secondary" type="button">Сегодня</button><button id="next-day" class="icon-button" aria-label="Следующий день" type="button">›</button></nav></header>
+        <section class="day-card">
+          <div id="add-area" class="add-area">
+            <form id="quick-form" novalidate><label for="quick-title" class="sr-only">Название новой задачи</label><div class="quick-row"><span class="add-symbol" aria-hidden="true">+</span><input id="quick-title" name="title" autocomplete="off" placeholder="Что запланируем?" aria-describedby="quick-error"><button class="button primary" type="submit">Добавить</button></div><p id="quick-error" class="field-error" role="alert" hidden></p></form>
+            <button id="add-details" class="text-button" type="button">Задача с деталями <span aria-hidden="true">↗</span></button>
+          </div>
+          <p id="past-message" class="past-message" hidden>Добавлять задачи можно на сегодня и будущие даты</p>
+          <section class="untimed-section" aria-labelledby="untimed-heading"><div class="section-heading"><h3 id="untimed-heading">Без времени</h3><span id="untimed-count" class="count-pill">0</span></div><div id="untimed-list" class="task-list"></div></section>
+          <section class="schedule-section" aria-labelledby="schedule-heading"><div class="section-heading"><h3 id="schedule-heading">Расписание</h3><button id="toggle-hours" class="text-button" type="button">Показать весь день</button></div><p id="schedule-hint" class="muted schedule-hint"></p><div class="schedule-scroll"><div id="timeline" class="timeline"></div></div></section>
+          <section class="completed-section" aria-label="Итог за выбранный день"><p id="completed-title" class="completed-summary" role="status" aria-live="polite">Выполнено задач: 0</p></section>
+        </section>
+      </section>
+      <aside class="overview" aria-label="Неделя и месяц">
+        <section class="overview-card" aria-labelledby="week-heading"><header class="overview-heading"><div><p class="eyebrow">В ОБЩЕМ ПЛАНЕ</p><h2 id="week-heading">Эта неделя</h2></div><span id="week-range" class="muted"></span></header><div id="week-list" class="week-list"></div></section>
+        <section class="overview-card month-card" aria-labelledby="month-heading"><header class="overview-heading month-heading"><h2 id="month-heading"></h2><nav aria-label="Выбор месяца"><button id="previous-month" class="icon-button" type="button" aria-label="Предыдущий месяц">‹</button><button id="next-month" class="icon-button" type="button" aria-label="Следующий месяц">›</button></nav></header><div class="month-weekdays" aria-hidden="true"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div><div id="month-grid" class="month-grid" role="group" aria-label="Даты месяца"></div><div class="calendar-legend"><span><i class="legend-today"></i>Сегодня</span><span><i class="legend-selected"></i>Выбранный день</span></div></section>
+      </aside>
+    </main>
+    <footer class="app-footer">Ваши планы остаются в этом браузере</footer>
+  </div>
+  <dialog id="task-dialog" aria-labelledby="task-dialog-title">
+    <form id="task-form" novalidate>
+      <header class="dialog-heading"><h2 id="task-dialog-title">Новая задача</h2><button id="close-task" class="icon-button" type="button" aria-label="Закрыть форму">×</button></header>
+      <div class="form-fields"><div class="field"><label for="task-title">Название <span class="required-mark">*</span></label><input id="task-title" name="title" autocomplete="off" aria-describedby="title-error"><p id="title-error" class="field-error" role="alert" hidden></p></div><div class="field"><label for="task-note">Заметка <span class="optional">необязательно</span></label><textarea id="task-note" name="note" rows="3" aria-describedby="note-error" placeholder="Детали, которые хочется запомнить"></textarea><p id="note-error" class="field-error" role="alert" hidden></p></div><div class="field"><label for="task-date">Дата</label><input id="task-date" name="date" type="date" min="1900-01-01" max="2100-12-31" aria-describedby="date-error"><p id="date-error" class="field-error" role="alert" hidden></p></div><label class="time-switch"><input id="task-timed" type="checkbox">Назначить время</label><div id="time-fields" class="time-fields" hidden><div class="field"><label for="task-start">Начало</label><input id="task-start" type="time" step="60"></div><span aria-hidden="true">—</span><div class="field"><label for="task-end">Окончание</label><input id="task-end" type="time" step="60"></div></div><p id="time-error" class="field-error" role="alert" hidden></p><p id="task-origin" class="muted" hidden></p><p id="task-form-error" class="field-error" role="alert" hidden></p></div>
+      <div class="form-fields repeat-fields">
+        <div class="field"><label for="task-repeat">Повторение</label><select id="task-repeat"><option value="none">Не повторять</option><option value="weekdays">По будням</option><option value="weekly">Еженедельно</option><option value="monthly">Ежемесячно</option></select><p id="repeat-error" class="field-error" role="alert" hidden></p><p id="repeat-preview" class="muted" hidden></p></div>
+        <div id="series-scope-field" class="field" hidden><label for="task-scope">Изменить</label><select id="task-scope"><option value="single">Только эта задача</option><option value="future">Эта и следующие</option></select><p id="series-scope-hint" class="muted"></p></div>
+        <div id="order-actions" class="order-actions" hidden><span class="muted">Порядок в списке</span><button id="move-up" class="button secondary" type="button">Выше</button><button id="move-down" class="button secondary" type="button">Ниже</button></div>
+        <button id="stop-repeat" class="text-button danger" type="button" hidden>Прекратить повторение</button>
+      </div>
+      <footer class="dialog-actions"><button id="delete-task" class="text-button danger" type="button" hidden>Удалить</button><div class="action-spacer"></div><button id="cancel-task" class="button secondary" type="button">Отмена</button><button class="button primary" type="submit">Сохранить</button></footer>
+    </form>
+  </dialog>
+  <dialog id="confirm-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title"></h2><div id="confirm-scope-field" class="field" hidden><label for="confirm-scope">Удалить</label><select id="confirm-scope"><option value="single">Только эту задачу</option><option value="future">Эту и следующие</option></select></div><p id="confirm-message"></p><div class="confirm-actions"><button id="confirm-cancel" class="button secondary" type="button">Отмена</button><button id="confirm-accept" class="button primary" type="button">Подтвердить</button></div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
